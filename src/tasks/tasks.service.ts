@@ -32,7 +32,7 @@ export class TasksService {
         await this.findOne(id); // valida que exista y no esté soft-deleted
 
         return this.prisma.task.update({
-            where: { id },
+            where: { id }, // update nadamas permite filtar campos o propiedades unicas
             data: updateTaskDto,
         });
     }
