@@ -1,7 +1,6 @@
 import {
     ConflictException,
     Injectable,
-    NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
@@ -18,11 +17,9 @@ export class AuthService {
     ) {}
 
     async registerAuth(registerDto: RegisterDto) {
-        const { email } = registerDto; // user email
-
         // 1. Primero verificar si el email existe
         const existingEmail = await this.prisma.user.findUnique({
-            where: { email }, // QUERIE para buscar datos unicos de la propiedad email
+            where: { email: registerDto.email },
         });
 
         if (existingEmail) throw new ConflictException('Email already exists'); // solo se esperan emails unicos
@@ -47,9 +44,7 @@ export class AuthService {
 
         // 2. Si no existe → error
         if (!existingUser)
-            throw new NotFoundException(
-                `No se pudo encontrar una cuenta con esta direccion ${email}`,
-            );
+            throw new UnauthorizedException('Invalid credentials');
 
         // 3. Comparar password con el hash → si no coincide → error
         const isPasswordValid = await bcrypt.compare(
@@ -58,6 +53,8 @@ export class AuthService {
         );
         if (!isPasswordValid)
             throw new UnauthorizedException('Invalid credentials');
+
+        // De esto hay una sesion
 
         // 4. Generar JWT
         const payload = { sub: existingUser.id, email: existingUser.email };
