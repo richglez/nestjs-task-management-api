@@ -49,9 +49,18 @@ export class UsersService {
         // Encuentra el usuario primero por su id
         await this.findOne(id);
 
+        // Si viene password en el updateUserDto.
+        if (updateUserDto.password) {
+            updateUserDto.password = await bcrypt.hash(
+                updateUserDto.password,
+                10,
+            );
+        }
+
         return this.prisma.user.update({
             where: { id }, // // update nadamas permite filtar campos o propiedades unicas @unique
             data: updateUserDto,
+            omit: { password: true }, // no devolver esta columna
         });
     }
 

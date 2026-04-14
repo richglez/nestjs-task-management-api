@@ -4,18 +4,30 @@ services:
         restart: unless-stopped
         container_name: postgres-task-manager
         environment:
-            POSTGRES_USER: richglez
-            POSTGRES_PASSWORD: 123456
-            POSTGRES_DB: task_manager_db
+            POSTGRES_USER: ${DB_USER}
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME}
         ports:
             - '5432:5432'
         volumes:
-            - postgres_data:/var/lib/postgresql  # <- sin /data en Postgres 18
+            - postgres_data:/var/lib/postgresql/data
         healthcheck:
-            test: ['CMD-SHELL', 'pg_isready -U richglez -d task_manager_db']
+            test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
             interval: 5s
             timeout: 5s
             retries: 5
+
+    api:
+        build: .
+        container_name: task-manager-api
+        restart: unless-stopped
+        ports:
+            - '3000:3000'
+        env_file:
+            - .env.docker        # ← usa el archivo completo, no variables sueltas
+        depends_on:
+            db:
+                condition: service_healthy
 
 volumes:
     postgres_data:
