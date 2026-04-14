@@ -23,3 +23,4 @@ Swagger — documentar la API automáticamente
 Validation pipe global — para que los DTOs validen en toda la app
 Dockerfile — containerizar el API
 Record<string, string>
+hashear la password actualizada

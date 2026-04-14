@@ -10,6 +10,7 @@ interface AuthenticatedUser {
     role: Role;
 }
 
+// Verificar permisos por roles
 @Injectable()
 export class RolesGuard implements CanActivate {
     constructor(private reflector: Reflector) {}
