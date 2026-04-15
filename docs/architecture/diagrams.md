@@ -4,7 +4,7 @@ This document contains the UML diagrams and the Entity-Relationship Diagram (ERD
 ## Entity-Relationship Diagram (ERD)
 The database is designed using PostgreSQL and modeled via Prisma ORM.
 
-## 📌 Entities
+### 📌 Entities
 
 | Entity   | Description                                |
 | -------- | ------------------------------------------ |
@@ -12,7 +12,7 @@ The database is designed using PostgreSQL and modeled via Prisma ORM.
 | Task     | Can have multiple tasks (1:N relationship) |
 
 
-## Relationships
+### Relationships
 * A User can have many Tasks
 * A Task belongs to one User
 * Cascade delete ensures that when a user is deleted,
@@ -48,11 +48,11 @@ erDiagram
 ```
 
 > ### 🧠 Notes
-> * Soft delete is implemented using deletedAt
+> * Soft delete is implemented using `deletedAt`
 > * Enums are used to enforce data consistency:
->   * Role: USER, ADMIN
->   * Status: PENDING, IN_PROGRESS, DONE
->   * Priority: LOW, MEDIUM, HIGH
+>   * `Role`: USER, ADMIN
+>   * `Status`: PENDING, IN_PROGRESS, DONE
+>   * `Priority`: LOW, MEDIUM, HIGH
 
 
 
