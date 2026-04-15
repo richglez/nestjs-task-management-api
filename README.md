@@ -1,6 +1,6 @@
 # Task Manager API
 
-A RESTful API for managing tasks with role-based access control, built with NestJS, PostgreSQL, and Prisma. Fully containerized with Docker.
+A RESTful API for managing tasks with role-based access control, built with NestJS, PostgreSQL | SoftDelete, and Prisma. Fully containerized with Docker.
 
 ## Tech Stack
 
