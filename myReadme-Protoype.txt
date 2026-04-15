@@ -1,6 +1,3 @@
-POST /auth/register  →  bcrypt hashea el password  →  guarda en DB
-POST /auth/login     →  bcrypt compara passwords   →  genera JWT
-GET  /tasks          →  valida JWT                 →  devuelve datos
 
 
 
