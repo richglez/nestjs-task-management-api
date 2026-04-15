@@ -149,6 +149,14 @@ Authorization: Bearer <your_token>
 
 ---
 
+## Documentaion
+* [PRD](/docs/docs\planning\PRD.md)
+* [Roadmap](/docs\planning\roadmap.md)
+* [Architecture](/docs\architecture\architecture.md)
+* [Models](/docs\architecture\models\diagrams.md)
+
+---
+
 ## License
 
 MIT
