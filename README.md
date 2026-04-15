@@ -150,7 +150,7 @@ Authorization: Bearer <your_token>
 ---
 
 ## Documentaion
-* [PRD](docs/docs\planning\PRD.md) - Product Requirements Document
+* [PRD](docs\planning\PRD.md) - Product Requirements Document
 * [Roadmap](docs\planning\roadmap.md) - Phase plan
 * [Architecture](docs\architecture\architecture.md) - Software Architecture
 * [Models](docs\architecture\models\diagrams.md) - Digrams / Models
