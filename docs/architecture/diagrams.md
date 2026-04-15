@@ -5,11 +5,12 @@ This document contains the UML diagrams and the Entity-Relationship Diagram (ERD
 The database is designed using PostgreSQL and modeled via Prisma ORM.
 
 # 📌 Entities
----------------------------------------------------------------------------------------------------------------------------
-|  Entidad  |  Descripción	                             |  Relación	               |  Cardinalidad            |
-| User	    |  Representa a un usuario de la aplicación.     |  Puede tener múltiples tareas.  |  1:N (Uno a muchos)      |
-| Task | Representa una tarea creada por un usuario. | Pertenece a un único usuario. | N:1 (Muchos a uno) |
-| ---- |
+
+| Entity   | Description                                |
+| -------- | ------------------------------------------ |
+| User     | Represents an application user             |
+| Task     | Can have multiple tasks (1:N relationship) |
+
 
 # Relationships
 * A User can have many Tasks
@@ -19,7 +20,7 @@ The database is designed using PostgreSQL and modeled via Prisma ORM.
 
 
 # ERD Diagram (Mermaid)
-
+```mermaid
 erDiagram
     USER {
         string id PK
@@ -44,6 +45,7 @@ erDiagram
     }
 
     USER ||--o{ TASK : "has"
+```
 
 > # 🧠 Notes
 > * Soft delete is implemented using deletedAt
@@ -57,6 +59,7 @@ erDiagram
 # UML - Use Case Diagram
 This diagram shows how different actors interact with the system.
 
+```mermaid
 flowchart TD
     User["User"]
     Admin["Admin"]
@@ -69,12 +72,13 @@ flowchart TD
 
     Admin -->|Manage Users| ManageUsers
     Admin -->|View All Tasks| ViewAllTasks
-
+```
 
 
 # UML - Sequence Diagram (Create Task)
 This diagram represents the flow of creating a task.
 
+```mermaid
 sequenceDiagram
     participant Client
     participant Controller
@@ -90,7 +94,7 @@ sequenceDiagram
     Prisma-->>Service: Task created
     Service-->>Controller: Task response
     Controller-->>Client: 201 Created
-
+```
 
 # Design Decisions
 * Prisma ORM → Type-safe queries and better DX
