@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Manager API — Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --accent3: #43e97b;
+    --text: #e8e8f0;
+    --muted: #7070a0;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(108,99,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(108,99,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    padding: 4rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4rem;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 0.25rem 0.75rem;
+    border-radius: 2px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .subtitle span::before { content: '// '; opacity: 0.5; }
+
+  /* Section titles */
+  .section {
+    margin-bottom: 5rem;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--muted);
+    font-family: var(--mono);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* Architecture Diagram */
+  .arch-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2.5rem;
+    overflow-x: auto;
+  }
+
+  .arch-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    min-width: 700px;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+
+  .arch-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .arch-box {
+    padding: 1rem 1.25rem;
+    border-radius: 6px;
+    text-align: center;
+    min-width: 100px;
+    position: relative;
+  }
+
+  .arch-box-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    opacity: 0.7;
+  }
+
+  .arch-box-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .arch-box-sub {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    opacity: 0.6;
+    margin-top: 0.2rem;
+  }
+
+  .node-client { background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.4); }
+  .node-guard  { background: rgba(255,101,132,0.12); border: 1px solid rgba(255,101,132,0.4); }
+  .node-ctrl   { background: rgba(67,233,123,0.10); border: 1px solid rgba(67,233,123,0.4); }
+  .node-service{ background: rgba(255,193,7,0.10);  border: 1px solid rgba(255,193,7,0.35); }
+  .node-prisma { background: rgba(0,188,212,0.10);  border: 1px solid rgba(0,188,212,0.35); }
+  .node-db     { background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.4); }
+
+  .arch-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0.5rem;
+    min-width: 70px;
+  }
+
+  .arrow-line {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--border), var(--accent), var(--border));
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .arrow-line::after {
+    content: '▶';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.6rem;
+    color: var(--accent);
+  }
+
+  .arrow-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    white-space: nowrap;
+  }
+
+  /* Request lifecycle */
+  .lifecycle {
+    display: grid;
+    gap: 0;
+    margin-top: 2rem;
+  }
+
+  .lifecycle-step {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .lifecycle-step:not(:last-child) .step-line {
+    position: absolute;
+    left: 0.9rem;
+    top: 2rem;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(var(--border), transparent);
+  }
+
+  .step-num {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .step-content { padding-top: 0.3rem; }
+
+  .step-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .step-desc {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  /* Use cases */
+  .use-case-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .use-case-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+
+  .use-case-card:hover { border-color: var(--accent); }
+
+  .uc-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .uc-role {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+  }
+
+  .role-user  { background: rgba(108,99,255,0.2); color: #a29bff; border: 1px solid rgba(108,99,255,0.3); }
+  .role-admin { background: rgba(255,101,132,0.2); color: #ff8fa3; border: 1px solid rgba(255,101,132,0.3); }
+  .role-guest { background: rgba(100,100,120,0.2); color: var(--muted); border: 1px solid var(--border); }
+
+  .uc-title {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+
+  .uc-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .uc-list li {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .uc-list li::before {
+    content: '→';
+    color: var(--accent3);
+    flex-shrink: 0;
+  }
+
+  /* Endpoint table */
+  .endpoint-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+  }
+
+  .endpoint-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    color: var(--muted);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+
+  .endpoint-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    vertical-align: middle;
+  }
+
+  .endpoint-table tr:hover td { background: var(--surface2); }
+
+  .method {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 0.7rem;
+    min-width: 52px;
+    text-align: center;
+  }
+
+  .GET    { background: rgba(67,233,123,0.15); color: #43e97b; border: 1px solid rgba(67,233,123,0.3); }
+  .POST   { background: rgba(108,99,255,0.15); color: #a29bff; border: 1px solid rgba(108,99,255,0.3); }
+  .PATCH  { background: rgba(255,193,7,0.15);  color: #ffd600; border: 1px solid rgba(255,193,7,0.3); }
+  .DELETE { background: rgba(255,101,132,0.15); color: #ff6584; border: 1px solid rgba(255,101,132,0.3); }
+
+  .lock-icon { color: var(--accent2); font-size: 0.65rem; }
+  .shield-icon { color: var(--accent); font-size: 0.65rem; }
+
+  .path { color: var(--text); }
+  .desc-cell { color: var(--muted); }
+
+  /* Relational schema */
+  .schema-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .schema-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .schema-table-header {
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-icon {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .icon-user  { background: var(--accent); }
+  .icon-task  { background: var(--accent3); }
+
+  .schema-table-name {
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .schema-table-tag {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+  }
+
+  .schema-fields {
+    padding: 0.5rem 0;
+  }
+
+  .schema-field {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.4rem 1.25rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    transition: background 0.15s;
+  }
+
+  .schema-field:hover { background: var(--surface2); }
+
+  .field-name { color: var(--text); }
+  .field-name.pk { color: var(--accent); font-weight: 600; }
+  .field-name.fk { color: var(--accent3); }
+
+  .field-type { color: var(--muted); font-size: 0.7rem; }
+
+  .field-tag {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .tag-pk { background: rgba(108,99,255,0.2); color: var(--accent); }
+  .tag-fk { background: rgba(67,233,123,0.15); color: var(--accent3); }
+  .tag-un { background: rgba(255,193,7,0.15); color: #ffd600; }
+  .tag-op { background: rgba(100,100,120,0.15); color: var(--muted); }
+  .tag-en { background: rgba(255,101,132,0.15); color: var(--accent2); }
+
+  /* Relation diagram */
+  .relation-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .rel-visual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .rel-entity {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.5rem;
+    min-width: 120px;
+  }
+
+  .rel-entity-name {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .rel-entity-pk {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  .rel-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .rel-line {
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+  }
+
+  .rel-cardinality {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  /* Enums */
+  .enum-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .enum-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .enum-header {
+    padding: 0.6rem 1rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .enum-values {
+    padding: 0.5rem 0;
+  }
+
+  .enum-value {
+    padding: 0.35rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--muted);
+  }
+
+  .enum-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 0;
+    margin-top: 5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: gap;
+  }
+
+  .footer-left {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .footer-stack {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .stack-pill {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--muted);
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 3rem 0; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="badge">API Documentation v1.0</div>
+    <h1>Task Manager <span>API</span></h1>
+    <div class="subtitle">
+      <span>NestJS + TypeScript</span>
+      <span>PostgreSQL + Prisma</span>
+      <span>JWT Auth + RBAC</span>
+      <span>Docker</span>
+    </div>
+  </header>
+
+  <!-- Architecture -->
+  <section class="section">
+    <div class="section-label">01 &nbsp; Architecture</div>
+    <h2>System Overview</h2>
+
+    <div class="arch-diagram">
+      <div class="arch-flow">
+
+        <div class="arch-node">
+          <div class="arch-box node-client">
+            <div class="arch-box-label">Client</div>
+            <div class="arch-box-name">HTTP Request</div>
+            <div class="arch-box-sub">REST / Swagger</div>
+          </div>
+        </div>
+
+        <div class="arch-arrow">
+          <div class="arrow-line"></div>
+          <div class="arrow-label">JWT Token</div>
+        </div>
+
+        <div class="arch-node">
+          <div class="arch-box node-guard">
+            <div class="arch-box-label">Guards</div>
+            <div class="arch-box-name">Auth + Roles</div>
+            <div class="arch-box-sub">JwtGuard / RolesGuard</div>
+          </div>
+        </div>
+
+        <div class="arch-arrow">
+          <div class="arrow-line"></div>
+          <div class="arrow-label">Validated</div>
+        </div>
+
+        <div class="arch-node">
+          <div class="arch-box node-ctrl">
+            <div class="arch-box-label">Controller</div>
+            <div class="arch-box-name">Route Handler</div>
+            <div class="arch-box-sub">@Controller()</div>
+          </div>
+        </div>
+
+        <div class="arch-arrow">
+          <div class="arrow-line"></div>
+          <div class="arrow-label">Business Logic</div>
+        </div>
+
+        <div class="arch-node">
+          <div class="arch-box node-service">
+            <div class="arch-box-label">Service</div>
+            <div class="arch-box-name">Business Logic</div>
+            <div class="arch-box-sub">@Injectable()</div>
+          </div>
+        </div>
+
+        <div class="arch-arrow">
+          <div class="arrow-line"></div>
+          <div class="arrow-label">Query</div>
+        </div>
+
+        <div class="arch-node">
+          <div class="arch-box node-prisma">
+            <div class="arch-box-label">ORM</div>
+            <div class="arch-box-name">Prisma Client</div>
+            <div class="arch-box-sub">Type-safe queries</div>
+          </div>
+        </div>
+
+        <div class="arch-arrow">
+          <div class="arrow-line"></div>
+          <div class="arrow-label">SQL</div>
+        </div>
+
+        <div class="arch-node">
+          <div class="arch-box node-db">
+            <div class="arch-box-label">Database</div>
+            <div class="arch-box-name">PostgreSQL</div>
+            <div class="arch-box-sub">Docker container</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <h3>// request lifecycle</h3>
+
+    <div class="lifecycle">
+      <div class="lifecycle-step">
+        <div class="step-line"></div>
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">HTTP Request arrives</div>
+          <div class="step-desc">Client sends request with Authorization: Bearer &lt;token&gt; header</div>
+        </div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="step-line"></div>
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">ValidationPipe runs</div>
+          <div class="step-desc">Body is validated against DTO — invalid fields are rejected (whitelist + forbidNonWhitelisted)</div>
+        </div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="step-line"></div>
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">JwtAuthGuard verifies token</div>
+          <div class="step-desc">JWT is decoded and verified with JWT_SECRET — user is attached to request</div>
+        </div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="step-line"></div>
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">RolesGuard checks permissions</div>
+          <div class="step-desc">Reads @Roles() metadata from endpoint — compares with user.role from token</div>
+        </div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="step-line"></div>
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Controller delegates to Service</div>
+          <div class="step-desc">Handler receives clean, typed data — business logic runs in the Service layer</div>
+        </div>
+      </div>
+      <div class="lifecycle-step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <div class="step-title">Prisma executes query → response</div>
+          <div class="step-desc">Type-safe query runs against PostgreSQL — result is serialized and returned</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Use Cases -->
+  <section class="section">
+    <div class="section-label">02 &nbsp; Use Cases</div>
+    <h2>Actor Capabilities</h2>
+
+    <div class="use-case-grid">
+
+      <div class="use-case-card">
+        <div class="uc-header">
+          <span class="uc-role role-guest">Guest</span>
+          <span class="uc-title">Unauthenticated</span>
+        </div>
+        <ul class="uc-list">
+          <li>Register a new account</li>
+          <li>Login with email + password</li>
+          <li>Receive JWT access token</li>
+          <li>Browse Swagger documentation</li>
+        </ul>
+      </div>
+
+      <div class="use-case-card">
+        <div class="uc-header">
+          <span class="uc-role role-user">User</span>
+          <span class="uc-title">Authenticated</span>
+        </div>
+        <ul class="uc-list">
+          <li>Create new tasks</li>
+          <li>List own tasks</li>
+          <li>View a specific task by ID</li>
+          <li>Update task title, description, status, priority</li>
+          <li>Soft-delete own tasks</li>
+        </ul>
+      </div>
+
+      <div class="use-case-card">
+        <div class="uc-header">
+          <span class="uc-role role-admin">Admin</span>
+          <span class="uc-title">Full Access</span>
+        </div>
+        <ul class="uc-list">
+          <li>All USER capabilities</li>
+          <li>View all users in the system</li>
+          <li>View tasks from any user</li>
+          <li>Delete any task or user</li>
+          <li>Assign or change user roles</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="divider"></div>
+    <h3>// api endpoints</h3>
+
+    <div class="arch-diagram" style="padding: 0; overflow: hidden;">
+      <table class="endpoint-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>Description</th>
+            <th>Access</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="method POST">POST</span></td>
+            <td class="path">/auth/register</td>
+            <td class="desc-cell">Register new user</td>
+            <td class="desc-cell">Public</td>
+          </tr>
+          <tr>
+            <td><span class="method POST">POST</span></td>
+            <td class="path">/auth/login</td>
+            <td class="desc-cell">Login, returns JWT</td>
+            <td class="desc-cell">Public</td>
+          </tr>
+          <tr>
+            <td><span class="method GET">GET</span></td>
+            <td class="path">/tasks</td>
+            <td class="desc-cell">Get own tasks</td>
+            <td class="desc-cell"><span class="lock-icon">🔒</span> USER</td>
+          </tr>
+          <tr>
+            <td><span class="method GET">GET</span></td>
+            <td class="path">/tasks/:id</td>
+            <td class="desc-cell">Get task by ID</td>
+            <td class="desc-cell"><span class="lock-icon">🔒</span> USER</td>
+          </tr>
+          <tr>
+            <td><span class="method POST">POST</span></td>
+            <td class="path">/tasks</td>
+            <td class="desc-cell">Create a new task</td>
+            <td class="desc-cell"><span class="lock-icon">🔒</span> USER</td>
+          </tr>
+          <tr>
+            <td><span class="method PATCH">PATCH</span></td>
+            <td class="path">/tasks/:id</td>
+            <td class="desc-cell">Update task fields</td>
+            <td class="desc-cell"><span class="lock-icon">🔒</span> USER</td>
+          </tr>
+          <tr>
+            <td><span class="method DELETE">DELETE</span></td>
+            <td class="path">/tasks/:id</td>
+            <td class="desc-cell">Soft-delete task</td>
+            <td class="desc-cell"><span class="lock-icon">🔒</span> USER</td>
+          </tr>
+          <tr>
+            <td><span class="method GET">GET</span></td>
+            <td class="path">/users</td>
+            <td class="desc-cell">List all users</td>
+            <td class="desc-cell"><span class="shield-icon">🛡</span> ADMIN</td>
+          </tr>
+          <tr>
+            <td><span class="method DELETE">DELETE</span></td>
+            <td class="path">/users/:id</td>
+            <td class="desc-cell">Delete a user</td>
+            <td class="desc-cell"><span class="shield-icon">🛡</span> ADMIN</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Database -->
+  <section class="section">
+    <div class="section-label">03 &nbsp; Database</div>
+    <h2>Relational Schema</h2>
+
+    <div class="schema-grid">
+
+      <!-- User table -->
+      <div class="schema-table">
+        <div class="schema-table-header">
+          <div class="table-icon icon-user"></div>
+          <span class="schema-table-name">User</span>
+          <span class="schema-table-tag">model</span>
+        </div>
+        <div class="schema-fields">
+          <div class="schema-field">
+            <span class="field-name pk">id</span>
+            <span class="field-type">String</span>
+            <span class="field-tag tag-pk">PK</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">email</span>
+            <span class="field-type">String</span>
+            <span class="field-tag tag-un">UNIQUE</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">password</span>
+            <span class="field-type">String</span>
+            <span class="field-tag" style="visibility:hidden">-</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">role</span>
+            <span class="field-type">Role</span>
+            <span class="field-tag tag-en">ENUM</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">createdAt</span>
+            <span class="field-type">DateTime</span>
+            <span class="field-tag" style="visibility:hidden">-</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">updatedAt</span>
+            <span class="field-type">DateTime</span>
+            <span class="field-tag" style="visibility:hidden">-</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">deletedAt</span>
+            <span class="field-type">DateTime?</span>
+            <span class="field-tag tag-op">SOFT DEL</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task table -->
+      <div class="schema-table">
+        <div class="schema-table-header">
+          <div class="table-icon icon-task"></div>
+          <span class="schema-table-name">Task</span>
+          <span class="schema-table-tag">model</span>
+        </div>
+        <div class="schema-fields">
+          <div class="schema-field">
+            <span class="field-name pk">id</span>
+            <span class="field-type">String</span>
+            <span class="field-tag tag-pk">PK</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">title</span>
+            <span class="field-type">String</span>
+            <span class="field-tag" style="visibility:hidden">-</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">description</span>
+            <span class="field-type">String?</span>
+            <span class="field-tag tag-op">OPTIONAL</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">status</span>
+            <span class="field-type">Status</span>
+            <span class="field-tag tag-en">ENUM</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">priority</span>
+            <span class="field-type">Priority</span>
+            <span class="field-tag tag-en">ENUM</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name fk">userId</span>
+            <span class="field-type">String</span>
+            <span class="field-tag tag-fk">FK</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">createdAt</span>
+            <span class="field-type">DateTime</span>
+            <span class="field-tag" style="visibility:hidden">-</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">updatedAt</span>
+            <span class="field-type">DateTime</span>
+            <span class="field-tag" style="visibility:hidden">-</span>
+          </div>
+          <div class="schema-field">
+            <span class="field-name">deletedAt</span>
+            <span class="field-type">DateTime?</span>
+            <span class="field-tag tag-op">SOFT DEL</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Relation diagram -->
+    <div class="relation-box">
+      <div class="rel-visual">
+        <div class="rel-entity">
+          <div class="rel-entity-name" style="color: var(--accent)">User</div>
+          <div class="rel-entity-pk">id (PK · UUID)</div>
+        </div>
+
+        <div class="rel-connector">
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-bottom:0.3rem">1</div>
+          <div class="rel-line"></div>
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:0.3rem">has many</div>
+        </div>
+
+        <div class="rel-entity">
+          <div class="rel-entity-name" style="color: var(--accent3)">Task</div>
+          <div class="rel-entity-pk">userId (FK → User.id)</div>
+        </div>
+
+        <div class="rel-connector">
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-bottom:0.3rem">N</div>
+          <div class="rel-line" style="background: linear-gradient(90deg, var(--accent3), var(--accent2))"></div>
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);margin-top:0.3rem">onDelete: Cascade</div>
+        </div>
+
+        <div style="font-family:var(--mono);font-size:0.75rem;color:var(--muted);padding:0.75rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:6px;">
+          Deleting a User<br>cascades to all Tasks
+        </div>
+      </div>
+    </div>
+
+    <!-- Enums -->
+    <div class="divider"></div>
+    <h3>// enumerations</h3>
+
+    <div class="enum-grid">
+      <div class="enum-card">
+        <div class="enum-header">enum Role</div>
+        <div class="enum-values">
+          <div class="enum-value">
+            <div class="enum-dot" style="background: var(--accent)"></div>
+            USER
+          </div>
+          <div class="enum-value">
+            <div class="enum-dot" style="background: var(--accent2)"></div>
+            ADMIN
+          </div>
+        </div>
+      </div>
+
+      <div class="enum-card">
+        <div class="enum-header">enum Status</div>
+        <div class="enum-values">
+          <div class="enum-value">
+            <div class="enum-dot" style="background: var(--muted)"></div>
+            PENDING
+          </div>
+          <div class="enum-value">
+            <div class="enum-dot" style="background: #ffd600"></div>
+            IN_PROGRESS
+          </div>
+          <div class="enum-value">
+            <div class="enum-dot" style="background: var(--accent3)"></div>
+            DONE
+          </div>
+        </div>
+      </div>
+
+      <div class="enum-card">
+        <div class="enum-header">enum Priority</div>
+        <div class="enum-values">
+          <div class="enum-value">
+            <div class="enum-dot" style="background: var(--accent3)"></div>
+            LOW
+          </div>
+          <div class="enum-value">
+            <div class="enum-dot" style="background: #ffd600"></div>
+            MEDIUM
+          </div>
+          <div class="enum-value">
+            <div class="enum-dot" style="background: var(--accent2)"></div>
+            HIGH
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">Task Manager API · docs/architecture.html</div>
+    <div class="footer-stack">
+      <span class="stack-pill">NestJS</span>
+      <span class="stack-pill">TypeScript</span>
+      <span class="stack-pill">Prisma</span>
+      <span class="stack-pill">PostgreSQL</span>
+      <span class="stack-pill">Docker</span>
+      <span class="stack-pill">JWT</span>
+      <span class="stack-pill">Bcrypt</span>
+      <span class="stack-pill">Swagger</span>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
