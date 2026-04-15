@@ -1,10 +1,10 @@
-## Diagrams
+# Diagrams
 This document contains the UML diagrams and the Entity-Relationship Diagram (ERD) representing the system's data model and interactions.
 
-# Entity-Relationship Diagram (ERD)
+## Entity-Relationship Diagram (ERD)
 The database is designed using PostgreSQL and modeled via Prisma ORM.
 
-# 📌 Entities
+## 📌 Entities
 
 | Entity   | Description                                |
 | -------- | ------------------------------------------ |
@@ -12,14 +12,14 @@ The database is designed using PostgreSQL and modeled via Prisma ORM.
 | Task     | Can have multiple tasks (1:N relationship) |
 
 
-# Relationships
+## Relationships
 * A User can have many Tasks
 * A Task belongs to one User
 * Cascade delete ensures that when a user is deleted,
 * all related tasks are removed
 
 
-# ERD Diagram (Mermaid)
+## ERD Diagram (Mermaid)
 ```mermaid
 erDiagram
     USER {
@@ -47,7 +47,7 @@ erDiagram
     USER ||--o{ TASK : "has"
 ```
 
-> # 🧠 Notes
+> ### 🧠 Notes
 > * Soft delete is implemented using deletedAt
 > * Enums are used to enforce data consistency:
 >   * Role: USER, ADMIN
@@ -56,7 +56,7 @@ erDiagram
 
 
 
-# UML - Use Case Diagram
+## UML - Use Case Diagram
 This diagram shows how different actors interact with the system.
 
 ```mermaid
@@ -75,7 +75,7 @@ flowchart TD
 ```
 
 
-# UML - Sequence Diagram (Create Task)
+## UML - Sequence Diagram (Create Task)
 This diagram represents the flow of creating a task.
 
 ```mermaid
@@ -96,14 +96,14 @@ sequenceDiagram
     Controller-->>Client: 201 Created
 ```
 
-# Design Decisions
+## Design Decisions
 * Prisma ORM → Type-safe queries and better DX
 * Soft Deletes → Data is not permanently removed
 * Enums → Prevent invalid states
 * Cascade Deletes → Maintain referential integrity
 * UUIDs → Safer and scalable IDs
 
-# 🚀 Why This Matters
+## 🚀 Why This Matters
 These diagrams help:
 * Understand the system quickly
 * Communicate architecture to other developers
