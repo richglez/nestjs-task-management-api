@@ -16,7 +16,7 @@
 
 ## Fase 3: v2.0 (Escalabilidad y UX Técnica) ⚡
 *Objetivo: Mejorar la mantenibilidad y el despliegue.*
-- [] Implementación de Tests Unitarios (Jest).
-- [] Filtros avanzados en `GET /tasks` (por estado, fecha, prioridad).
-- [] Logs de actividad del servidor.
-- [] Configuración de CI/CD para despliegue automatizado.
+- [ ] Implementación de Tests Unitarios (Jest).
+- [ ] Filtros avanzados en `GET /tasks` (por estado, fecha, prioridad).
+- [ ] Logs de actividad del servidor.
+- [ ] Configuración de CI/CD para despliegue automatizado.
