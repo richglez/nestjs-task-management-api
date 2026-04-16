@@ -177,7 +177,7 @@ Authorization: Bearer <your_token>
 * [Roadmap](docs/planning/roadmap.md) - Phase plan
 * [Architecture](docs/architecture/architecture.md) - Software Architecture
 * [Models](docs/architecture/models/diagrams.md) - Digrams / Models
-* [Rputes](docs/architecture/api/routes.md) - API Endpoints Routes
+* [Routes](docs/api/routes.md) - API Endpoints Routes
 
 
 ---
