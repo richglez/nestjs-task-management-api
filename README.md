@@ -30,6 +30,9 @@ src/
 ├── tasks/        # Task module + (Dto Tasks, Service Tasks, Controller Tasks, )
 ├── users/        # User module + (Dto User, Service User, Controller User, )
 └── main.ts       # App entry point, Swagger config
+
+prisma/
+└──  migrations/  # PostgreSQL migrations (schema, role, status, priority, user, task)
 ```
 
 ## Getting Started
